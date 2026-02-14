@@ -93,9 +93,6 @@ func get_wishdir():
 func get_jump():
 	return sqrt(4 * jump_force * gravity)
 
-## Get gravity force
-func get_gravity(delta):
-	return gravity * delta
 
 ######
 # All this code was only possible thanks to the technical writeup by Flafla2 available below.
@@ -137,7 +134,7 @@ func get_next_velocity(previousVelocity, delta):
 	# Calculate velocity for next frame
 	var velocity = accelerate(get_wishdir(), previousVelocity, accel, max_vel, delta)
 	# Apply gravity
-	velocity += Vector3.DOWN * get_gravity(delta)
+	newVelocity.y -= gravity * delta
 	
 	# Apply jump if desired
 	if (Input.is_action_pressed(jump) if jump_when_held else Input.is_action_just_pressed(jump)) \
