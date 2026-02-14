@@ -14,7 +14,11 @@ extends CharacterBody3D
 
 @export_category("Input Definitions")
 ## Mouse sensitivity multiplier
-@export var sensitivity : Vector2 = Vector2.ONE
+var sensitivity: Vector2 = sensitivity_source * (TAU / 16363.6364)
+@export var sensitivity_source : Vector2 = Vector2.ONE:
+	set(value): # sensitivity multiplier for Source engine sensitivity derived from u/xxfartlordxx's post https://www.reddit.com/r/godot/comments/1fc4td6/how_to_convert_sensitivity_from_different_games/
+		sensitivity = value * TAU / 16363.6364
+		sensitivity_source = value
 ## Movement actions
 @export var move_forward : String
 @export var move_backward : String
@@ -55,6 +59,13 @@ extends CharacterBody3D
 ## Raycast to update with velocity
 @export var debug_velocity_raycast : RayCast3D
 
+@onready var playerRotation: Vector3 = camera.rotation:
+	set(value):
+		camera.rotation.x = value.x
+		rotation.y = value.y
+	get():
+		return Vector3(camera.rotation.x, rotation.y, 0)
+
 ## Utility function for setting mouse mode, always visible if camera is unset
 func update_mouse_mode():
 	if look_enabled and camera:
@@ -66,9 +77,9 @@ func mouse_look(event):
 	# Mouse look controls, don't activate if camera is unset
 	if look_enabled and camera:
 		if event is InputEventMouseMotion:
-			rotate_y(deg_to_rad(-event.relative.x * sensitivity.y))
-			camera.rotate_x(deg_to_rad(-event.relative.y * sensitivity.x))
-			camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+			playerRotation.y += (-event.screen_relative.x * sensitivity.y)
+			playerRotation.x += (-event.screen_relative.y * sensitivity.x)
+			playerRotation.x = clamp(playerRotation.x, deg_to_rad(-89), deg_to_rad(89))
 
 ## Get player's intended direction. (0,0) if movement disabled
 func get_wishdir():
